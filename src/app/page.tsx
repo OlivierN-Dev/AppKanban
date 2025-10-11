@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import Task from "../components/Task";
-import AddTask from "../components/AddTask";
-import Selectcolumn from "../components/SelectColumn";
+import Task from "@/components/Task";
+import AddTask from "@/components/AddTask";
+import Selectcolumn from "@/components/SelectColumn";
+import DeleteDiv from "@/components/DeleteComp";
+import ColumnName from "@/components/ColumnName";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 
@@ -12,9 +14,20 @@ type Board = {
   name: string;
 };
 
+type SubTask = {
+  textSubTask?: string;
+};
+
+type Task = {
+  id: number;
+  name: string;
+  subtask?: SubTask[];
+};
+
 type Column = {
   id: string;
   name: string;
+  tasks?: Task[];
 };
 
 export default function App() {
@@ -43,13 +56,18 @@ export default function App() {
     setShowBoardForm(false);
   };
 
-  const addColumn = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!columnName || typeof columnName !== "string") return;
-    const newColumn: Column = { id: uuidv4(), name: columnName };
+  const addColumn = () => {
+    const newColumn: Column = { id: uuidv4(), name: "" };
     setColumns((prev) => [...prev, newColumn]);
-    setColumnName("");
   };
+
+  const del = (id: string) => {
+    setColumns((prev) => prev.filter((col) => col.id !== id));
+  };
+
+  // const editColumn = () => {
+
+  // }
 
   return (
     <div className="font-platform z-0">
@@ -85,6 +103,7 @@ export default function App() {
       </header>
 
       <main className="bg-[#20212c] flex flex-col items-center justify-center text-center h-[90vh] gap-6 relative">
+        <AddTask name="Add New Task" />
         <p className="text-[#828FA3] font-bold w-[80%] text-center">
           {allBoard.length === 0
             ? "This board is empty. Create a new Board to get started."
@@ -100,7 +119,7 @@ export default function App() {
 
         {showForm && (
           <div className="absolute bg-[#2b2c37] text-white p-6 rounded-lg shadow-lg w-[350px]">
-            <h3 className="font-bold text-lg mb-4">Add New Board</h3>
+            <h3 className="font-bold text-lg text-start mb-4">Add New Board</h3>
 
             <form
               ref={formRef}
@@ -118,24 +137,37 @@ export default function App() {
                   className="p-2 w-full rounded border border-[#3e3f4e]"
                 />
               </label>
-              <label className="flex flex-col text-left">
+              <label className="flex flex-col text-left gap-3">
                 <span className="mb-1 font-bold text-sm">Board Columns</span>
-                <Selectcolumn
-                  valuename={columnName}
-                  onChange={(e) => setColumnName(e.target.value)}
-                  text="Todo"
-                  name="Columns"
-                />
+                {columns.map((col) => (
+                  <Selectcolumn
+                    key={col.id}
+                    id={col.id}
+                    valuename={col.name}
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      setColumns((prev) =>
+                        prev.map((c) =>
+                          c.id === col.id ? { ...c, name: newName } : c
+                        )
+                      );
+                    }}
+                    onDelete={del}
+                    text={col.name || "New Column"}
+                    name="Columns"
+                  />
+                ))}
               </label>
               <button
                 type="button"
-                className="w-[100%] rounded-full py-2 px4 bg-white text-[#635FC7]"
+                onClick={addColumn}
+                className="w-full rounded-full py-2 px4 bg-white text-[#635FC7]"
               >
                 + Add New Column
               </button>
               <button
                 type="submit"
-                className="w-[100%] rounded-full py-2 px4 bg-[#635FC7] text-white"
+                className="w-full rounded-full py-2 px4 bg-[#635FC7] text-white"
               >
                 Create New Board
               </button>
