@@ -128,9 +128,12 @@ export default function App() {
 
       <main className="bg-[#20212c] flex flex-col items-center justify-center text-center h-[90vh] gap-6 relative">
         {showNavBar && (
-          <div className="absolute top-5 mr-0 ml-0 bg-red-50">
-            <h3>All BOARD{allBoard.length > 1 ? "S" : ""}</h3>
-            <ul>
+          <div className="absolute top-5 mr-0 ml-0 bg-[#2B2C37] flex flex-col items-center gap-2 pb-2 rounded-[8px] w-[60%]">
+            <h3 className="text-[#828FA3] text-[12px] font-bold tracking-[2.4px] text-start w-[85%] p-2">
+              ALL BOARD{allBoard.length > 1 ? "S" : ""} (
+              <span>{allBoard.length}</span>)
+            </h3>
+            <ul className="w-full">
               {allBoard.map((board) => (
                 <LiNav
                   key={board.id}
@@ -141,7 +144,22 @@ export default function App() {
                   active={selectedId === board.id}
                 />
               ))}
+              <li
+                className={
+                  "flex gap-3 items-center p-3 cursor-pointer rounded-md"
+                }
+              >
+                <img src="../img/createNavBoard.svg" alt="img-create-board" />
+                <span className=" text-[#635FC7] ">+ Create New Board</span>
+              </li>
             </ul>
+            <div className="bg-[#20212C] flex justify-center items-center gap-3 w-[90%] p-3 rounded-[6px]">
+              <img src="../img/darkmodeSun.svg" alt="sun white mod" />
+              <div className="bg-[#635FC7] p-1 w-[20%] flex items-center justify-end rounded-2xl">
+                <div className="w-[50%] h-[15px] rounded-[50%] bg-white"></div>
+              </div>
+              <img src="../img/modenight.svg" alt="moon dark mod" />
+            </div>
           </div>
         )}
         <p className="text-[#828FA3] font-bold w-[80%] text-center">
