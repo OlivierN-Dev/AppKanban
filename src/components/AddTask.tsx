@@ -2,9 +2,9 @@ import React from "react";
 
 export default function CreateAddMenu({ name = "" }) {
   return (
-    <div className="flex flex-col absolute z-1 bg-[#2b2c37] p-6 rounded-md gap-6">
+    <div className="w-[90%] flex flex-col absolute z-1 bg-[#2b2c37] p-6 rounded-md gap-6">
       <h2 className="text-white font-bold text-[18px] text-start">{name}</h2>
-      <form className="flex flex-col bg-[##2B2C37] items-center w-11/12 gap-6">
+      <form className="flex flex-col bg-[##2B2C37] w-full gap-6">
         <div>
           <label
             htmlFor="title"
@@ -27,9 +27,8 @@ export default function CreateAddMenu({ name = "" }) {
             Description
             <input
               type="text"
-              placeholder="e.g. It's always good to take a break. This 
-            15 minute break will  recharge the batteries 
-            a little."
+              className="border border-[#828FA340] rounded text-white text-[13px] w-full py-2 px-4"
+              placeholder="e.g. It's always good to take a break. This 15 minute break will recharge the batteries a little."
             />
           </label>
         </div>
@@ -43,6 +42,7 @@ export default function CreateAddMenu({ name = "" }) {
               <input
                 className="border border-[#828FA340] rounded text-white text-[13px] w-full py-2 px-4"
                 type="text"
+                placeholder="e.g. Make coffee"
               />
               <button>
                 <img src="../img/close.svg" alt="close" />
@@ -51,24 +51,25 @@ export default function CreateAddMenu({ name = "" }) {
           </label>
               <button
                 type="button"
-                className="w-full rounded-full py-2 px4 bg-white text-[#635FC7]"
+                className="font-bold w-full rounded-full py-2 px4 bg-white text-[#635FC7]"
               >
                 + Add New Subtask
               </button>
         </div>
-        <div className="text-white font-bold flex flex-col justify-center items-start gap-2">
+        <div>
           <label
             htmlFor="status"
+            className="text-white font-bold flex flex-col justify-center text-start gap-2"
           >
             Status
-            <select name="status">
+            <select name="status" className="border border-[#828FA340] rounded text-white text-[13px] w-full py-2 px-4">
               <option value="Todo">Todo</option>
               <option value="Doing">Doing</option>
               <option value="Done">Done</option>
             </select>
           </label>
         </div>
-          <button type="submit" className="w-full rounded-full py-2 px4 bg-[#635FC7] text-white">Create Task</button>
+          <button type="submit" className="font-bold w-full rounded-full py-2 px4 bg-[#635FC7] text-white">Create Task</button>
       </form>
     </div>
   );

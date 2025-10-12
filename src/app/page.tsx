@@ -6,6 +6,8 @@ import AddTask from "@/components/AddTask";
 import Selectcolumn from "@/components/SelectColumn";
 import DeleteDiv from "@/components/DeleteComp";
 import ColumnName from "@/components/ColumnName";
+import EditBoard from "@/components/editBoard";
+import LiNav from "@/components/NavBarLi";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 
@@ -34,26 +36,44 @@ export default function App() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [allBoard, setAllBoard] = useState<Board[]>([]);
   const [showForm, setShowBoardForm] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [showNavBar, setShowNavBar] = useState(false);
   const [BoardName, setBaordName] = useState("");
   const [columns, setColumns] = useState<Column[]>([]);
   const [columnName, setColumnName] = useState("");
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const handleSelect = (id: string) => {
+    setSelectedId(id);
+  };
+  const showNav = () => {
+    if (allBoard.length === 0) return;
+    setShowNavBar(true);
+  };
   const createBoard = () => {
     setShowBoardForm(true);
   };
   const closeForm = () => {
     setShowBoardForm(false);
   };
-  const addBoard = (e: React.FormEvent) => {
+  const openDeleteBoard = () => {
+    setShowDelete(true);
+  };
+
+  const addBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = formRef.current;
-    if (!form) return;
-    const formData = new FormData(form);
+
+    const formData = new FormData(e.currentTarget);
     const nom = formData.get("Name");
     if (!nom || typeof nom !== "string") return;
+
     const newBoard: Board = { id: uuidv4(), name: nom };
     setAllBoard((prev) => [...prev, newBoard]);
+    setSelectedBoardId(newBoard.id);
     setShowBoardForm(false);
+    e.currentTarget.reset();
   };
 
   const addColumn = () => {
@@ -65,16 +85,20 @@ export default function App() {
     setColumns((prev) => prev.filter((col) => col.id !== id));
   };
 
-  // const editColumn = () => {
+  const deleteBoard = (id: string) => {
+    setAllBoard((prev) => prev.filter((board) => board.id !== id));
+  };
 
-  // }
+  const isEmpty = allBoard.length === 0;
+  const buttonText = isEmpty ? "+ Add Board" : "+ Add Column";
+  const handleClick = isEmpty ? createBoard : addColumn;
 
   return (
     <div className="font-platform z-0">
       <header className="flex justify-between items-center bg-[#2b2c37] py-5 px-4">
         <div className="flex items-center gap-4">
           <img src="/img/logoBase.svg" alt="logoBase" />
-          <div className="flex flex-row items-center gap-2">
+          <div onClick={showNav} className="flex flex-row items-center gap-2">
             <h1 className="text-white font-bold flex items-center gap-2">
               {allBoard.length === 0 ? (
                 "Create a Board"
@@ -96,14 +120,30 @@ export default function App() {
               <img src="img/add.svg" alt="add" />
             </button>
           </li>
-          <li>
+          <li onClick={openDeleteBoard}>
             <img src="img/point.svg" alt="trois point" />
           </li>
         </ul>
       </header>
 
       <main className="bg-[#20212c] flex flex-col items-center justify-center text-center h-[90vh] gap-6 relative">
-        <AddTask name="Add New Task" />
+        {showNavBar && (
+          <div className="absolute top-5 mr-0 ml-0 bg-red-50">
+            <h3>All BOARD{allBoard.length > 1 ? "S" : ""}</h3>
+            <ul>
+              {allBoard.map((board) => (
+                <LiNav
+                  key={board.id}
+                  id={board.id}
+                  text={board.name}
+                  img="../img/nav-li.svg"
+                  onSelect={handleSelect}
+                  active={selectedId === board.id}
+                />
+              ))}
+            </ul>
+          </div>
+        )}
         <p className="text-[#828FA3] font-bold w-[80%] text-center">
           {allBoard.length === 0
             ? "This board is empty. Create a new Board to get started."
@@ -111,27 +151,23 @@ export default function App() {
         </p>
 
         <button
-          onClick={allBoard.length === 0 ? createBoard : addColumn}
+          onClick={handleClick}
           className="text-white text-center bg-[#635FC7] py-2.5 px-[18px] rounded-full"
         >
-          {allBoard.length === 0 ? "+ Add Board" : "+ Add Column"}
+          {buttonText}
         </button>
 
         {showForm && (
           <div className="absolute bg-[#2b2c37] text-white p-6 rounded-lg shadow-lg w-[350px]">
             <h3 className="font-bold text-lg text-start mb-4">Add New Board</h3>
 
-            <form
-              ref={formRef}
-              onSubmit={addBoard}
-              className="flex flex-col gap-4"
-            >
+            <form onSubmit={addBoard} className="flex flex-col gap-4">
               <label className="flex flex-col text-left">
                 <span className="mb-1 text-sm font-bold">Board Name</span>
                 <input
                   type="text"
                   name="Name"
-                  value={BoardName}
+                  required
                   onChange={(e) => setBaordName(e.target.value)}
                   placeholder="e.g. Marketing Plan"
                   className="p-2 w-full rounded border border-[#3e3f4e]"
@@ -173,6 +209,18 @@ export default function App() {
               </button>
             </form>
           </div>
+        )}
+        {showDelete && selectedBoardId && (
+          <DeleteDiv
+            id={selectedBoardId}
+            type="Delete this board?"
+            desci="Are you sure you want to delete this board? This action cannot be reversed."
+            onDelete={(id) => {
+              deleteBoard(id);
+              setShowDelete(false);
+              setSelectedBoardId(null);
+            }}
+          />
         )}
       </main>
     </div>
