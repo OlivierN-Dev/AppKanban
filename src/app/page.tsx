@@ -11,9 +11,11 @@ import LiNav from "@/components/NavBarLi";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 
+
 type Board = {
   id: string;
-  name: string;
+  name: string
+  ;
 };
 
 type SubTask = {
@@ -21,7 +23,7 @@ type SubTask = {
 };
 
 type Task = {
-  id: number;
+  id: string;
   name: string;
   subtask?: SubTask[];
 };
@@ -61,6 +63,9 @@ export default function App() {
   const openDeleteBoard = () => {
     setShowDelete(true);
   };
+  const closeDeleteBoard = () => {
+    setShowDelete(false)
+  }
 
   const addBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,6 +79,7 @@ export default function App() {
     setSelectedBoardId(newBoard.id);
     setShowBoardForm(false);
     e.currentTarget.reset();
+    setColumns([]);
   };
 
   const addColumn = () => {
@@ -94,7 +100,7 @@ export default function App() {
   const handleClick = isEmpty ? createBoard : addColumn;
 
   return (
-    <div className="font-platform z-0">
+    <div className="font-platform z-0 h-screen overflow-hidden">
       <header className="flex justify-between items-center bg-[#2b2c37] py-5 px-4">
         <div className="flex items-center gap-4">
           <img src="/img/logoBase.svg" alt="logoBase" />
@@ -126,14 +132,15 @@ export default function App() {
         </ul>
       </header>
 
-      <main className="bg-[#20212c] flex flex-col items-center justify-center text-center h-[90vh] gap-6 relative">
+      <main className="bg-[#20212c] flex flex-col items-center justify-center text-center h-[100%] gap-6 relative">
         {showNavBar && (
+          
           <div className="absolute top-5 mr-0 ml-0 bg-[#2B2C37] flex flex-col items-center gap-2 pb-2 rounded-[8px] w-[60%]">
             <h3 className="text-[#828FA3] text-[12px] font-bold tracking-[2.4px] text-start w-[85%] p-2">
               ALL BOARD{allBoard.length > 1 ? "S" : ""} (
               <span>{allBoard.length}</span>)
             </h3>
-            <ul className="w-full">
+            <ul className="w-[90%]">
               {allBoard.map((board) => (
                 <LiNav
                   key={board.id}
@@ -144,15 +151,17 @@ export default function App() {
                   active={selectedId === board.id}
                 />
               ))}
-              <li
+              
+            </ul>
+            <button
+            onClick={createBoard}
                 className={
-                  "flex gap-3 items-center p-3 cursor-pointer rounded-md"
+                 "flex gap-3 items-center p-3 cursor-pointer rounded-md text-start w-[90%]"
                 }
               >
                 <img src="../img/createNavBoard.svg" alt="img-create-board" />
                 <span className=" text-[#635FC7] ">+ Create New Board</span>
-              </li>
-            </ul>
+              </button>
             <div className="bg-[#20212C] flex justify-center items-center gap-3 w-[90%] p-3 rounded-[6px]">
               <img src="../img/darkmodeSun.svg" alt="sun white mod" />
               <div className="bg-[#635FC7] p-1 w-[20%] flex items-center justify-end rounded-2xl">
@@ -197,7 +206,6 @@ export default function App() {
                   <Selectcolumn
                     key={col.id}
                     id={col.id}
-                    valuename={col.name}
                     onChange={(e) => {
                       const newName = e.target.value;
                       setColumns((prev) =>
@@ -207,7 +215,7 @@ export default function App() {
                       );
                     }}
                     onDelete={del}
-                    text={col.name || "New Column"}
+                    text={"New Column"}
                     name="Columns"
                   />
                 ))}
@@ -231,6 +239,7 @@ export default function App() {
         {showDelete && selectedBoardId && (
           <DeleteDiv
             id={selectedBoardId}
+            onCancel={closeDeleteBoard}
             type="Delete this board?"
             desci="Are you sure you want to delete this board? This action cannot be reversed."
             onDelete={(id) => {
