@@ -1,5 +1,6 @@
 import React from "react";
 
+
 type ColumnsSelectProps = {
   id: string;
   text?: string;
@@ -13,7 +14,6 @@ export default function ColumnsSelect({
   id = "",
   text = "",
   name = "",
-  valuename = "",
   onChange,
   onDelete,
 }: ColumnsSelectProps) {
@@ -22,7 +22,7 @@ export default function ColumnsSelect({
       <input
         className="border border-[#828FA340] rounded text-white text-[13px] w-full py-2 px-4"
         type="text"
-        value={valuename}
+        required
         name={name}
         placeholder={text}
         onChange={onChange}
