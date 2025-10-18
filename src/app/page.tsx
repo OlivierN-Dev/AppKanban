@@ -106,7 +106,6 @@ export default function App() {
     const formData = new FormData(e.currentTarget);
     const value = formData.get("title");
     if (!value || typeof value !== "string") return;
-    
   };
 
   const addColumn = () => {
