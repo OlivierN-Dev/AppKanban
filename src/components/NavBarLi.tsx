@@ -18,7 +18,7 @@ export default function createLi({
   return (
     <li
       onClick={() => onSelect(id, text)}
-      className={`flex gap-3 items-center p-3 cursor-pointer rounded-r-[999px] transition-colors w-[90%] ${
+      className={`overflow-hidden flex gap-3 items-center p-3 cursor-pointer rounded-r-[999px] transition-colors w-[90%] ${
         active ? "text-white bg-[#635FC7]" : "text-[#828FA3] hover:bg-[#E4EBFA]"
       }`}
     >

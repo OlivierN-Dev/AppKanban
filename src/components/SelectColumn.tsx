@@ -1,6 +1,5 @@
 import React from "react";
 
-
 type ColumnsSelectProps = {
   id: string;
   text?: string;

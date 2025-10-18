@@ -66,6 +66,7 @@ export default function App() {
   };
   const createBoard = () => {
     setShowBoardForm(true);
+    setColumns([]);
   };
   const closeForm = () => {
     setShowBoardForm(false);
@@ -85,7 +86,6 @@ export default function App() {
     const formData = new FormData(e.currentTarget);
     const nom = formData.get("Name");
     if (!nom || typeof nom !== "string") return;
-
     const newBoard: Board = { id: uuidv4(), name: nom };
 
     setAllBoard((prev) => [...prev, newBoard]);
@@ -101,11 +101,22 @@ export default function App() {
   };
 
   const ChangeBoard = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault;
+    e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
     const value = formData.get("title");
     if (!value || typeof value !== "string") return;
+
+    if (!selectedBoardId) return;
+
+    setAllBoard((prev) =>
+      prev.map((board) =>
+        board.id === selectedBoardId ? { ...board, name: value } : board
+      )
+    );
+
+    setCurrentBoard(value);
+    setEditBoard(false);
   };
 
   const addColumn = () => {
@@ -298,8 +309,12 @@ export default function App() {
             onSubmit={ChangeBoard}
             nameValue={CurrentBoard}
             onChange={(e) => setCurrentBoard(e.target.value)}
+            columns={columns}
+            setColumns={setColumns}
+            onDeleteColumn={del}
           />
         )}
+
         {showDelete && selectedBoardId && (
           <DeleteDiv
             id={selectedBoardId}
