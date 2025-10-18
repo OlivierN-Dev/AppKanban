@@ -10,7 +10,7 @@ type deleteBeard = {
 
 export default function deleteTask({ type = "", desci = "", id = "", onDelete, onCancel}: deleteBeard) {
   return (
-    <div className="bg-[#2B2C37] w-11/12 flex flex-col gap-8 rounded-[6px] p-8 absolute">
+    <div className="bg-[#2B2C37] w-11/12 flex flex-col gap-8 rounded-[6px] p-8 absolute z-3">
       <h3 className="text-start text-[#EA5555] font-bold text-[18px]">
         {type}
       </h3>

@@ -5,7 +5,7 @@ type deleteBea = {
   text?: string;
   active?: boolean;
   img: string;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, text: string) => void;
 };
 
 export default function createLi({
@@ -17,11 +17,15 @@ export default function createLi({
 }: deleteBea) {
   return (
     <li
-      onClick={() => onSelect(id)}
-      className={`flex gap-3 items-center p-3 cursor-pointer rounded-md transition-colors rounded-r-[100px] w-[90%]
-        ${active ? " text-white bg-[#635FC7] " + `${(img = "../img/nav-li-dark.svg")}` : "text-[#828FA3] hover:bg-[#E4EBFA]" + `${(img = "../img/nav-li.svg")}`}`}
+      onClick={() => onSelect(id, text)}
+      className={`flex gap-3 items-center p-3 cursor-pointer rounded-r-[999px] transition-colors w-[90%] ${
+        active ? "text-white bg-[#635FC7]" : "text-[#828FA3] hover:bg-[#E4EBFA]"
+      }`}
     >
-      <img src={img} alt="logo-Board" />
+      <img
+        src={active ? "../img/nav-li-dark.svg" : "../img/nav-li.svg"}
+        alt="logo"
+      />
       <span className="font-bold text-[15px]">{text}</span>
     </li>
   );

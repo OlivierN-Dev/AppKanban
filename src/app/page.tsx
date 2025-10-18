@@ -10,12 +10,11 @@ import EditBoard from "@/components/editBoard";
 import LiNav from "@/components/NavBarLi";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
-
+import { text } from "stream/consumers";
 
 type Board = {
   id: string;
-  name: string
-  ;
+  name: string;
 };
 
 type SubTask = {
@@ -38,21 +37,32 @@ export default function App() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [allBoard, setAllBoard] = useState<Board[]>([]);
   const [showForm, setShowBoardForm] = useState(false);
+  const [editBoard, setEditBoard] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showNavBar, setShowNavBar] = useState(false);
+  const [opacity, setOpacity] = useState(false);
   const [BoardName, setBaordName] = useState("");
+  const [CurrentBoard, setCurrentBoard] = useState("");
+  const [CurrentNameAcc, setCurrentNameAcc] = useState("Olivier");
   const [columns, setColumns] = useState<Column[]>([]);
   const [columnName, setColumnName] = useState("");
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (id: string, text: string) => {
     setSelectedId(id);
+    setCurrentBoard(text);
+    setSelectedBoardId(id);
   };
   const showNav = () => {
     if (allBoard.length === 0) return;
     setShowNavBar(true);
+    setOpacity(true);
+  };
+  const closeNav = () => {
+    setShowNavBar(false);
+    setOpacity(false);
+    setShowDelete(false);
   };
   const createBoard = () => {
     setShowBoardForm(true);
@@ -62,10 +72,12 @@ export default function App() {
   };
   const openDeleteBoard = () => {
     setShowDelete(true);
+    setOpacity(true);
   };
   const closeDeleteBoard = () => {
-    setShowDelete(false)
-  }
+    setShowDelete(false);
+    setOpacity(false);
+  };
 
   const addBoard = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,11 +87,26 @@ export default function App() {
     if (!nom || typeof nom !== "string") return;
 
     const newBoard: Board = { id: uuidv4(), name: nom };
+
     setAllBoard((prev) => [...prev, newBoard]);
+
+    setCurrentBoard(nom);
+    setSelectedId(newBoard.id);
     setSelectedBoardId(newBoard.id);
+    setIsDisabled(false);
     setShowBoardForm(false);
     e.currentTarget.reset();
+
     setColumns([]);
+  };
+
+  const ChangeBoard = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault;
+
+    const formData = new FormData(e.currentTarget);
+    const value = formData.get("title");
+    if (!value || typeof value !== "string") return;
+    
   };
 
   const addColumn = () => {
@@ -93,6 +120,9 @@ export default function App() {
 
   const deleteBoard = (id: string) => {
     setAllBoard((prev) => prev.filter((board) => board.id !== id));
+    setSelectedId(null);
+    setSelectedBoardId(null);
+    setCurrentBoard("");
   };
 
   const isEmpty = allBoard.length === 0;
@@ -101,6 +131,12 @@ export default function App() {
 
   return (
     <div className="font-platform z-0 h-screen overflow-hidden">
+      {opacity && (
+        <div
+          onClick={closeNav}
+          className="fixed top-0 left-0 opacity-[50%] bg-black w-screen h-screen z-1"
+        ></div>
+      )}
       <header className="flex justify-between items-center bg-[#2b2c37] py-5 px-4">
         <div className="flex items-center gap-4">
           <img src="/img/logoBase.svg" alt="logoBase" />
@@ -108,9 +144,14 @@ export default function App() {
             <h1 className="text-white font-bold flex items-center gap-2">
               {allBoard.length === 0 ? (
                 "Create a Board"
+              ) : allBoard.length === 1 ? (
+                <>
+                  {allBoard[0].name}
+                  <img src="/img/arrowDown.svg" alt="arrow down" />
+                </>
               ) : (
                 <>
-                  {allBoard[0]?.name}
+                  {CurrentBoard || "Select a Board"}
                   <img src="/img/arrowDown.svg" alt="arrow down" />
                 </>
               )}
@@ -121,9 +162,10 @@ export default function App() {
           <li>
             <button
               disabled={isDisabled}
-              className="py-2.5 px-[18px] rounded-full bg-[#635FC7] disabled:opacity-25 disabled:cursor-not-allowed"
+              onClick={() => setEditBoard(true)}
+              className="py-1 px-4 rounded-full bg-[#635FC7] disabled:opacity-25 disabled:cursor-not-allowed"
             >
-              <img src="img/add.svg" alt="add" />
+              <i className="ri-pencil-fill text-white"></i>
             </button>
           </li>
           <li onClick={openDeleteBoard}>
@@ -134,41 +176,54 @@ export default function App() {
 
       <main className="bg-[#20212c] flex flex-col items-center justify-center text-center h-[100%] gap-6 relative">
         {showNavBar && (
-          
-          <div className="absolute top-5 mr-0 ml-0 bg-[#2B2C37] flex flex-col items-center gap-2 pb-2 rounded-[8px] w-[60%]">
+          <div className="absolute top-5 mr-0 ml-0 bg-[#2B2C37] flex flex-col items-center gap-2 pb-2 rounded-[8px] w-[250px] z-2">
             <h3 className="text-[#828FA3] text-[12px] font-bold tracking-[2.4px] text-start w-[85%] p-2">
-              ALL BOARD{allBoard.length > 1 ? "S" : ""} (
-              <span>{allBoard.length}</span>)
+              <>
+                ALL BOARD{allBoard.length > 1 && "S"}(
+                <span>{allBoard.length}</span>)
+              </>
             </h3>
             <ul className="w-[90%]">
-              {allBoard.map((board) => (
-                <LiNav
-                  key={board.id}
-                  id={board.id}
-                  text={board.name}
-                  img="../img/nav-li.svg"
-                  onSelect={handleSelect}
-                  active={selectedId === board.id}
-                />
-              ))}
-              
+              {allBoard.length === 0 ? (
+                <>
+                  <span className="text-white font-bold">
+                    Vous avez 0 board
+                  </span>
+                </>
+              ) : (
+                <>
+                  {allBoard.map((board) => (
+                    <LiNav
+                      key={board.id}
+                      id={board.id}
+                      text={board.name}
+                      img="../img/nav-li.svg"
+                      onSelect={handleSelect}
+                      active={selectedId === board.id}
+                    />
+                  ))}
+                </>
+              )}
             </ul>
             <button
-            onClick={createBoard}
-                className={
-                 "flex gap-3 items-center p-3 cursor-pointer rounded-md text-start w-[90%]"
-                }
-              >
-                <img src="../img/createNavBoard.svg" alt="img-create-board" />
-                <span className=" text-[#635FC7] ">+ Create New Board</span>
-              </button>
+              onClick={createBoard}
+              className={
+                "flex gap-3 items-center p-3 cursor-pointer rounded-md text-start w-[90%]"
+              }
+            >
+              <img src="../img/createNavBoard.svg" alt="img-create-board" />
+              <span className=" text-[#635FC7] ">+ Create New Board</span>
+            </button>
             <div className="bg-[#20212C] flex justify-center items-center gap-3 w-[90%] p-3 rounded-[6px]">
               <img src="../img/darkmodeSun.svg" alt="sun white mod" />
-              <div className="bg-[#635FC7] p-1 w-[20%] flex items-center justify-end rounded-2xl">
-                <div className="w-[50%] h-[15px] rounded-[50%] bg-white"></div>
+              <div className="bg-[#635FC7] p-1 w-[50px] flex items-center justify-end rounded-2xl">
+                <div className="w-[20px] h-[18px] rounded-[50%] bg-white"></div>
               </div>
               <img src="../img/modenight.svg" alt="moon dark mod" />
             </div>
+            <h2 className="text-white flex gap-3 font-bold items-center p-3 cursor-pointer transition-colors w-[90%]">
+              Welcome to our App, {CurrentNameAcc}
+            </h2>
           </div>
         )}
         <p className="text-[#828FA3] font-bold w-[80%] text-center">
@@ -185,7 +240,7 @@ export default function App() {
         </button>
 
         {showForm && (
-          <div className="absolute bg-[#2b2c37] text-white p-6 rounded-lg shadow-lg w-[350px]">
+          <div className="absolute bg-[#2b2c37] text-white p-6 rounded-lg shadow-lg w-[350px] z-3">
             <h3 className="font-bold text-lg text-start mb-4">Add New Board</h3>
 
             <form onSubmit={addBoard} className="flex flex-col gap-4">
@@ -195,7 +250,10 @@ export default function App() {
                   type="text"
                   name="Name"
                   required
-                  onChange={(e) => setBaordName(e.target.value)}
+                  onChange={(e) => {
+                    setBaordName(e.target.value);
+                    setCurrentBoard(e.target.value);
+                  }}
                   placeholder="e.g. Marketing Plan"
                   className="p-2 w-full rounded border border-[#3e3f4e]"
                 />
@@ -236,6 +294,13 @@ export default function App() {
             </form>
           </div>
         )}
+        {editBoard && (
+          <EditBoard
+            onSubmit={ChangeBoard}
+            nameValue={CurrentBoard}
+            onChange={(e) => setCurrentBoard(e.target.value)}
+          />
+        )}
         {showDelete && selectedBoardId && (
           <DeleteDiv
             id={selectedBoardId}
@@ -246,6 +311,7 @@ export default function App() {
               deleteBoard(id);
               setShowDelete(false);
               setSelectedBoardId(null);
+              setOpacity(false);
             }}
           />
         )}
