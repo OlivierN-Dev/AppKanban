@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Task from "@/components/Task";
 import AddTask from "@/components/AddTask";
 import Selectcolumn from "@/components/SelectColumn";
@@ -9,8 +9,17 @@ import ColumnName from "@/components/ColumnName";
 import EditBoard from "@/components/editBoard";
 import LiNav from "@/components/NavBarLi";
 import Link from "next/link";
+import LoginPage from "@/components/Login";
 import { v4 as uuidv4 } from "uuid";
 import { text } from "stream/consumers";
+import ReactDOM from "react-dom";
+import { log } from "console";
+
+type UserProfil = {
+  username: string;
+  id: string;
+  pfp: File | null;
+};
 
 type Board = {
   id: string;
@@ -44,6 +53,7 @@ export default function App() {
   const [BoardName, setBaordName] = useState("");
   const [CurrentBoard, setCurrentBoard] = useState("");
   const [CurrentNameAcc, setCurrentNameAcc] = useState("Olivier");
+  const [LoginStatus, setLoginStatus] = useState(false);
   const [columns, setColumns] = useState<Column[]>([]);
   const [columnName, setColumnName] = useState("");
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
@@ -54,6 +64,9 @@ export default function App() {
     setCurrentBoard(text);
     setSelectedBoardId(id);
   };
+  useEffect(() => {
+    setLoginStatus(true);
+  }, []);
   const showNav = () => {
     if (allBoard.length === 0) return;
     setShowNavBar(true);
@@ -78,6 +91,29 @@ export default function App() {
   const closeDeleteBoard = () => {
     setShowDelete(false);
     setOpacity(false);
+  };
+
+  const LoginSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData(e.currentTarget);
+      const user = formData.get("username");
+
+      const profilPicture = formData.get("filePfp");
+
+      const newProfil: UserProfil = {
+        username: user as string,
+        id: uuidv4(),
+        pfp: profilPicture instanceof File ? profilPicture : null,
+      };
+      console.log(newProfil);
+
+      setCurrentNameAcc(newProfil.username);
+
+      setLoginStatus(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const addBoard = (e: React.FormEvent<HTMLFormElement>) => {
@@ -141,6 +177,7 @@ export default function App() {
 
   return (
     <div className="font-platform z-0 h-screen overflow-hidden">
+      {LoginStatus && <LoginPage onSubmit={LoginSubmit} />}
       {opacity && (
         <div
           onClick={closeNav}
